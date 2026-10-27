@@ -3,15 +3,19 @@ import { Dashboard } from "./routes/Dashboard"
 import { NewCropPage } from "./routes/NewCropPage"
 import { EditCropPage } from "./routes/EditCropPage"
 import { CropHistoryPage } from "./routes/CropHistoryPage"
+import { Toaster } from 'sonner'
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/new" element={<NewCropPage />} />
-      <Route path="/edit/:id" element={<EditCropPage />} />
-      <Route path="/history/:id" element={<CropHistoryPage />} />
-    </Routes>
+    <main>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/new" element={<NewCropPage />} />
+        <Route path="/edit/:id" element={<EditCropPage />} />
+        <Route path="/history/:id" element={<CropHistoryPage />} />
+      </Routes>
+      <Toaster />
+    </main>
   )
 }
 

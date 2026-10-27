@@ -5,6 +5,8 @@ import { FiArrowLeft } from "react-icons/fi";
 import { getAvailableCropNames } from "../utils/getAvailableCropNames.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { validateFormData } from "../utils/validateFormData.js";
+import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -42,12 +44,20 @@ export function NewCropPage() {
     }, []);
 
     const onCreate = async (formData) => {
+        setError("");
+
+        if (!validateFormData(formData, setError)) {
+            return;
+        }
+
         try {
             await axios.post(`${API_URL}/api/crops`, formData);
+            toast.success("Crop created successfully.");
             navigate("/");
         } catch (error) {
-            alert(
-                error.response?.data?.error || "Failed to create crop."
+            setError(
+                error.response?.data?.error ||
+                "Failed to create crop."
             );
         }
     };
@@ -69,14 +79,11 @@ export function NewCropPage() {
                     Back to Dashboard
                 </button>
 
-                {error && (
-                    <p className="mb-4 text-sm text-red-600">{error}</p>
-                )}
-
                 <CropForm
                     isEditing={false}
                     onSubmit={onCreate}
                     availableCropNames={availableCropNames}
+                    error={error}
                 />
             </div>
         </div>

@@ -18,9 +18,9 @@ export function CropHistoryPage () {
                 const crop = await axios.get(`${API_URL}/api/crops/${id}`);
                 const reading = await axios.get(`${API_URL}/api/readings`);
 
-                const filteredReadings = reading.data.filter(
-                    (item) => item.crop_name === crop.data.crop_name
-                );
+                const filteredReadings = reading.data
+                    .filter((item) => item.crop_name === crop.data.crop_name)
+                    .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
                 setReadings(filteredReadings);
             } catch (err) {
                 console.log(err);

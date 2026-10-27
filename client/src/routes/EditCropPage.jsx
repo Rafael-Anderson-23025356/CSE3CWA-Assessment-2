@@ -5,6 +5,8 @@ import { FiArrowLeft } from "react-icons/fi";
 import { getAvailableCropNames } from "../utils/getAvailableCropNames.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { validateFormData } from "../utils/validateFormData.js";
+import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -47,19 +49,20 @@ export function EditCropPage() {
     }, []);
 
     const onUpdate = async (formData) => {
+        setError("");
+
+        if (!validateFormData(formData, setError)) return;
+
         try {
             await axios.put(`${API_URL}/api/crops/${id}`, formData);
+            toast.success("Crop updated successfully.");
             navigate("/");
         } catch (error) {
-            alert(
-            error.response?.data?.error || "Failed to update crop."
+            setError(
+                error.response?.data?.error || "Failed to update crop."
             );
         }
     };
-
-    useEffect(() => {
-        console.log("Crop: ", crop)
-    }, [crop])
 
     return (
         <div
@@ -78,10 +81,6 @@ export function EditCropPage() {
                     Back to Dashboard
                 </button>
 
-                {error && (
-                    <p className="mb-4 text-sm text-red-600">{error}</p>
-                )}
-
                 {crop && (
                     <CropForm
                         key={crop.id}
@@ -89,6 +88,7 @@ export function EditCropPage() {
                         onSubmit={onUpdate}
                         availableCropNames={availableCropNames}
                         crop={crop}
+                        error={error}
                     />
                 )}
             </div>

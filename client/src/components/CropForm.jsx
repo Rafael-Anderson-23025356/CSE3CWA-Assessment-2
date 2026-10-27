@@ -3,7 +3,7 @@ import { useState } from "react";
 import { InputGroup } from "./InputGroup";
 import { useNavigate } from "react-router";
 
-export function CropForm({ isEditing, onSubmit, availableCropNames, crop }) {
+export function CropForm({ isEditing, onSubmit, availableCropNames, crop, error }) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         crop_name: crop?.crop_name || "",
@@ -26,9 +26,9 @@ export function CropForm({ isEditing, onSubmit, availableCropNames, crop }) {
 
         onSubmit({
             ...formData,
-            target_min: Number(formData.target_min),
-            target_max: Number(formData.target_max),
-            normal_water: Number(formData.normal_water),
+            target_min: formData.target_min === "" ? null : Number(formData.target_min),
+            target_max: formData.target_max === "" ? null : Number(formData.target_max),
+            normal_water: formData.normal_water === "" ? null : Number(formData.normal_water),
         });
     };
 
@@ -53,7 +53,12 @@ export function CropForm({ isEditing, onSubmit, availableCropNames, crop }) {
                 label="Crop Name"
                 type="select"
                 placeholder="e.g. Maize"
-                options={availableCropNames}
+                options={
+                    isEditing && crop?.crop_name &&
+                    !availableCropNames.includes(crop.crop_name)
+                        ? [crop.crop_name, ...availableCropNames]
+                        : availableCropNames
+                }
                 value={formData.crop_name}
                 onChange={(value) => handleChange("crop_name", value)}
                 disabled={isEditing}
@@ -103,6 +108,9 @@ export function CropForm({ isEditing, onSubmit, availableCropNames, crop }) {
                 value={formData.notes}
                 onChange={(value) => handleChange("notes", value)}
             />
+            {error && (
+                <p className="mb-4 text-sm text-red-600 mt-1">{error}</p>
+            )}
 
             <div className="w-full flex justify-end mt-4">
                 <button 

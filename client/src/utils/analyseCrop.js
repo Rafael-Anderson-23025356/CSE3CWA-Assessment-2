@@ -1,4 +1,3 @@
-
 export function analyseCrop(cropCard, reading) {
     const noWater = "N/A";
 
@@ -83,12 +82,31 @@ export function analyseCrop(cropCard, reading) {
         };
     }
 
+    const alerts = [];
+
+    if (temperature > 35) {
+        alerts.push({
+            title: "High Temperature",
+            message: `Temperature is ${temperature}°C, above 35°C.`,
+            severity: "warning",
+        });
+    }
+
+    if (rainfall >= 5) {
+        alerts.push({
+            title: "Rain detected",
+            message: `Rainfall is ${rainfall} mm.`,
+            severity: "warning",
+        });
+    }
+
     if (moisture < Number(cropCard.target_min)) {
         return {
             status: "Dry",
             recommendedWater: cropCard.normal_water,
             action: "Water crop",
             alerts: [
+                ...alerts,
                 {
                     title: "Low Soil Moisture",
                     message: `Soil moisture is ${moisture}%, below the target minimum of ${cropCard.target_min}%.`,
@@ -103,7 +121,7 @@ export function analyseCrop(cropCard, reading) {
             status: "Healthy",
             recommendedWater: 0,
             action: "Monitor",
-            alerts: [],
+            alerts,
         };
     }
 
@@ -112,6 +130,7 @@ export function analyseCrop(cropCard, reading) {
         recommendedWater: 0,
         action: "Stop watering",
         alerts: [
+            ...alerts,
             {
                 title: "High Soil Moisture",
                 message: `Soil moisture is ${moisture}%, above the target maximum of ${cropCard.target_max}%.`,

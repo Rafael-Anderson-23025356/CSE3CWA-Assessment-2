@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllReadings, } from "../repositories/readingRepository.js";
+import { getAllReadings } from "../repositories/readingRepository.js";
 
 export const readingRouter = express.Router();
 

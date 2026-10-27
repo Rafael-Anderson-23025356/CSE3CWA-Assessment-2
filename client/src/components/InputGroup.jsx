@@ -3,7 +3,7 @@ export function InputGroup({label, placeholder, marginTop, type, options = [], v
     const inputClassName =
         "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-[#111320] placeholder:text-gray-400 outline-none transition-colors focus:border-[#111320] focus:ring-2 focus:ring-[#111320]/10 mt-2";
     const disabledClassName =
-        "full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-[#111320] placeholder:text-gray-400 outline-none transition-colors focus:border-[#111320] focus:ring-2 focus:ring-[#111320]/10 mt-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-70 w-full";
+        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-[#111320] placeholder:text-gray-400 outline-none transition-colors focus:border-[#111320] focus:ring-2 focus:ring-[#111320]/10 mt-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-70 w-full";
 
     return (
         <div className={marginTop ? "mt-5" : ""}>

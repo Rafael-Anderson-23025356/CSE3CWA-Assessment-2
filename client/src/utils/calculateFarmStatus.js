@@ -1,4 +1,3 @@
-
 import { analyseCrop } from "./analyseCrop.js";
 
 export function calculateFarmStatus(cropCards) {
@@ -9,8 +8,23 @@ export function calculateFarmStatus(cropCards) {
         };
     }
 
+    const analyses = cropCards.map(({ crop, reading }) =>
+        analyseCrop(crop, reading)
+    );
+
+    if (
+        analyses.some(({ status }) =>
+            ["Sensor Problem", "Invalid Data"].includes(status)
+        )
+    ) {
+        return {
+            status: "Critical",
+            message: "At least one crop has a sensor problem or invalid data.",
+        };
+    }
+
     const hasSuccessfulSensorData = cropCards.some(({ reading }) => {
-        if (!reading || ["Offline", "Faulty"].includes(reading.sensor_status)) {
+        if (!reading || reading.sensor_status !== "Online") {
             return false;
         }
 
@@ -37,27 +51,10 @@ export function calculateFarmStatus(cropCards) {
         };
     }
 
-    const analyses = cropCards.map(({ crop, reading }) =>
-        analyseCrop(crop, reading)
-    );
-
     if (
-        analyses.some(({ status }) =>
-            ["Sensor Problem", "Invalid Data"].includes(status)
-        )
-    ) {
-        return {
-            status: "Critical",
-            message: "At least one crop has a sensor problem or invalid data.",
-        };
-    }
-
-    if (
-        analyses.some(({ status }) =>
-            ["Dry", "Too Wet"].includes(status)
-        ) ||
-        cropCards.some(
-            ({ reading }) => Number(reading.temperature) > 35
+        analyses.some(({ status, alerts }) =>
+            ["Dry", "Too Wet"].includes(status) ||
+            alerts.some(({ title }) => title === "High Temperature")
         )
     ) {
         return {

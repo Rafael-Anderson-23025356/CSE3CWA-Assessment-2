@@ -13,7 +13,8 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     crop_name TEXT NOT NULL UNIQUE
       CHECK (crop_name IN ('Tomato', 'Lettuce', 'Wheat', 'Maize')),
-    location TEXT NOT NULL,
+    location TEXT NOT NULL
+      CHECK (length(location) <= 100),
     target_min REAL NOT NULL
       CHECK (target_min >= 0 AND target_min <= 100),
     target_max REAL NOT NULL
