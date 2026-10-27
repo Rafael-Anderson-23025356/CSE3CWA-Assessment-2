@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FiEdit2, FiTrash2, FiClock } from "react-icons/fi";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { analyseCrop } from "../utils/analyseCrop";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,6 +21,16 @@ export function CropCard ({crop, reading, getCrops}) {
         }
     }
 
+    const analysis = analyseCrop(crop, reading);
+
+    const statusStyles = {
+        "Sensor Problem": "border-red-700 bg-red-300/10 text-red-700",
+        "Invalid Data": "border-red-700 bg-red-300/10 text-red-700",
+        Dry: "border-yellow-700 bg-yellow-300/10 text-yellow-700",
+        Healthy: "border-green-700 bg-green-300/10 text-green-700",
+        "Too Wet": "border-blue-700 bg-blue-300/10 text-blue-700",
+    };
+
     return (
         <div className="p-4 bg-white rounded-[10px]">
             <div className="flex justify-between items-center">
@@ -27,7 +38,12 @@ export function CropCard ({crop, reading, getCrops}) {
                     <p className="text-xl font-medium">{crop.crop_name}</p>
                 </div>
                 <div className="flex gap-x-2">
-                    <div className="cursor-pointer p-2 border rounded-[10px] border-gray-600/30">
+                    <div 
+                        className="cursor-pointer p-2 border rounded-[10px] border-gray-600/30"
+                        onClick={() => {
+                            navigate(`/history/${crop?.id}`)
+                        }}
+                    >
                         <FiClock  
                             size={20} 
                         />
@@ -106,21 +122,35 @@ export function CropCard ({crop, reading, getCrops}) {
                         })
                         : "No readings available"}</p>
                 </div>
-                <div className="border py-1 px-2 border-yellow-700 bg-yellow-300/10 w-fit rounded-[10px] mt-2 h-fit">
-                    <p className="text-xs text-yellow-700 font-medium">Dry</p>
+                <div
+                    className={`border py-1 px-2 w-fit rounded-[10px] mt-2 h-fit ${
+                        statusStyles[analysis.status] ??
+                        "border-gray-500 bg-gray-300/10 text-gray-600"
+                    }`}
+                    >
+                    <p className="text-xs font-medium">{analysis.status}</p>
                 </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 <DetailCard label={"Soil Moisture"} value={`${reading?.soil_moisture}%`} />
                 <DetailCard label={"Temperature"} value={`${reading?.temperature}°C`} />
                 <DetailCard label={"Rainfall"} value={`${reading?.rainfall} mm`} />
                 <DetailCard label={"Sensor Status"} value={reading?.sensor_status} />
             </div>
-            <p className="text-xs mt-3">Recommended Water: 500L</p>
-            <div className="border p-3 border-red-700 bg-red-300/10 w-full rounded-[10px] mt-4 h-fit">
-                <p className="text-sm text-red-700 font-medium">High Temperature</p>
-                <p className="text-xs text-red-700 mt-1">Temperature is 36°C, exceeding the 35°C threshold.</p>
-            </div>
+            <p className="text-xs mt-3">Recommended Water: {analysis.recommendedWater}L</p>
+            {analysis.alerts.map((alert, index) => (
+                <div
+                    key={`${alert.title}-${index}`}
+                    className={`border p-3 w-full rounded-[10px] mt-4 ${
+                    alert.severity === "danger"
+                        ? "border-red-700 bg-red-300/10 text-red-700"
+                        : "border-yellow-700 bg-yellow-300/10 text-yellow-700"
+                    }`}
+                >
+                    <p className="text-sm font-medium">{alert.title}</p>
+                    <p className="text-xs mt-1">{alert.message}</p>
+                </div>
+                ))}
         </div>
     );
 }

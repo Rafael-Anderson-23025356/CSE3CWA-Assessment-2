@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { getLatestReading } from "../utils/getLatestReading.js";
+import { calculateFarmStatus } from "../utils/calculateFarmStatus.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,6 +16,13 @@ export function Dashboard () {
     const [error, setError] = useState("");
     const [lastRefresh, setLastRefresh] = useState(null);
     
+    const cropCards = crops.map((crop) => ({
+        crop,
+        reading: getLatestReading(crop.crop_name, readings),
+    }));
+
+    const farmStatus = calculateFarmStatus(cropCards);
+
     const getCrops = async() => {
         try {
             setError("");
@@ -56,7 +64,7 @@ export function Dashboard () {
                         }}
                         className="text-2xl font-semibold"
                     >Summary</p>
-                    <div className="font-medium">
+                    <div className="font-medium flex flex-col sm:flex-row">
                         <button 
                             type="button"
                             className="cursor-pointer rounded-[5px] px-4 py-3 border border-[#111320] bg-white text-sm"
@@ -67,18 +75,18 @@ export function Dashboard () {
                         >Refresh Data</button>
                         <button
                             type="button"
-                            className="cursor-pointer bg-[#111320] rounded-[5px] text-white px-4 py-3 text-sm ml-2"
+                            className="cursor-pointer bg-[#111320] rounded-[5px] text-white px-4 py-3 text-sm mt-2 sm:mt-0 sm:ml-2"
                             onClick={() => {
                                 navigate("/new")
                             }}
                         >Add Crop</button>
                     </div>
                 </div>
-                <div className="grid grid-cols-3 gap-x-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <SummaryCard
                         label="Overall Farm Status"
-                        value="Watch"
-                        subtitle="Some crops need attention"
+                        value={farmStatus.status}
+                        subtitle={farmStatus.message}
                     />
 
                     <SummaryCard
@@ -106,7 +114,7 @@ export function Dashboard () {
                     }}
                     className="text-2xl font-semibold mt-12 mb-6"
                 >Crops</p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {crops.map((crop, index) => {
                         const latestReading = getLatestReading(crop.crop_name, readings);
                         return (
