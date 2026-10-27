@@ -4,14 +4,17 @@ import { CropCard } from "../components/CropCard"
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { getLatestReading } from "../utils/getLatestReading.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export function Dashboard () {
     const navigate = useNavigate();
     const [crops, setCrops] = useState([]);
+    const [readings, setReadings] = useState([]);
     const [error, setError] = useState("");
-
+    const [lastRefresh, setLastRefresh] = useState(null);
+    
     const getCrops = async() => {
         try {
             setError("");
@@ -24,14 +27,28 @@ export function Dashboard () {
         }
     }
 
+    const getReadings = async() => {
+        try {
+            setError("");
+            const response = await axios.get(`${API_URL}/api/readings`);
+            setReadings(response.data);
+            setLastRefresh(new Date());
+        } catch (error) {
+            setError(
+                error.response?.data?.error || "Failed to load crop sensor readings."
+            );
+        }
+    }
+
     useEffect(() => {
         getCrops();
+        getReadings();
     }, [])
 
     return (
         <div className="bg-[#F2F1F8] min-h-dvh text-[#111320]">
             <Navbar />
-            <div className="p-8 pb-12 max-w-7xl mx-auto">   
+            <div className="p-8 pb-12">   
                 <div className="flex justify-between items-center mb-6">
                     <p
                         style={{
@@ -45,6 +62,7 @@ export function Dashboard () {
                             className="cursor-pointer rounded-[5px] px-4 py-3 border border-[#111320] bg-white text-sm"
                             onClick={() => {
                                 getCrops();
+                                getReadings();
                             }}
                         >Refresh Data</button>
                         <button
@@ -65,13 +83,20 @@ export function Dashboard () {
 
                     <SummaryCard
                         label="Crop Cards"
-                        value="3"
+                        value={crops?.length}
                         subtitle="Crops currently monitored"
                     />
 
                     <SummaryCard
-                        label="Last Sensor Refresh" 
-                        value="10:35 AM"
+                        label="Last Sensor Refresh"
+                        value={
+                            lastRefresh
+                            ? lastRefresh.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })
+                            : "Not yet refreshed"
+                        }   
                         subtitle="Latest sensor data received"
                     />
                 </div>
@@ -81,10 +106,18 @@ export function Dashboard () {
                     }}
                     className="text-2xl font-semibold mt-12 mb-6"
                 >Crops</p>
-                <div className="grid grid-cols-1 gap-4">
-                    {crops.map((crop) => (
-                        <CropCard crop={crop} />
-                    ))}
+                <div className="grid grid-cols-2 gap-4">
+                    {crops.map((crop, index) => {
+                        const latestReading = getLatestReading(crop.crop_name, readings);
+                        return (
+                            <CropCard 
+                                key={index}
+                                crop={crop} 
+                                reading={latestReading} 
+                                getCrops={getCrops}
+                            />
+                        );
+                    })}
                 </div>
             </div>
         </div>

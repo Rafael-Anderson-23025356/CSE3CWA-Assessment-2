@@ -1,4 +1,4 @@
-export function DetailCard () {
+export function DetailCard ({label, value}) {
     return (
         <div
             style={{
@@ -6,8 +6,8 @@ export function DetailCard () {
             }}
             className="border border-gray-600/30 p-3 rounded-[10px]"
         >
-            <p className="text-xs text-gray-500 font-medium">Soil Moisture</p>
-            <p className="font-medium mt-1">40%</p>
+            <p className="text-xs text-gray-500 font-medium">{label}</p>
+            <p className="font-medium mt-1">{value}</p>
         </div>
     );
 }
