@@ -184,5 +184,3 @@ The application keeps Crop Card configuration in SQLite and sensor observations 
 ## Known limitations before submission
 
 The Sensor History page currently sorts and displays raw readings; it does not analyse each historical reading with the shared `analyseCrop` utility as required by the brief.
-
-These limitations should be resolved and acceptance-tested before final submission.
